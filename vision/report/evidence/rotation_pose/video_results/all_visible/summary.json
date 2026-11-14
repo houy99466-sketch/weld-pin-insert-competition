@@ -1,0 +1,71 @@
+{
+  "source": "/home/jerry/robot/Recording from 2026-11-14 13-07-49.768840.mp4",
+  "frames_decoded": 415,
+  "fps": 29.992772825825103,
+  "duration_s": 13.836666666666666,
+  "frame_local_observations": 769,
+  "accepted_observations": 339,
+  "frames_with_at_least_one_angle": 281,
+  "rejected_observation_reasons": {
+    "hole_not_resolved": 55,
+    "target_clipped": 315,
+    "too_few_face_edges": 22,
+    "insufficient_orthogonal_support": 28,
+    "inconsistent_face_edges": 10
+  },
+  "angle_definition": "image_horizontal_modulo_90_positive_counterclockwise",
+  "pose_classes_predicted": false,
+  "persistent_identities_claimed": false,
+  "physical_yaw_ground_truth_available": false,
+  "manual_annotation_type": "model-assisted manual image-edge labeling",
+  "manual_direction_checks": [
+    {
+      "frame": 0,
+      "manual_edge_direction_deg": -0.2968693717792448,
+      "estimated_axis_deg": 0.9875915187908291,
+      "edge_direction_difference_deg": 1.2844608905700738,
+      "endpoint_angle_uncertainty_estimate_deg": 5.194428907734806,
+      "within_estimated_endpoint_uncertainty": true
+    },
+    {
+      "frame": 37,
+      "manual_edge_direction_deg": 2.862405226111747,
+      "estimated_axis_deg": 3.2464902296081632,
+      "edge_direction_difference_deg": 0.3840850034964163,
+      "endpoint_angle_uncertainty_estimate_deg": 7.11621793804893,
+      "within_estimated_endpoint_uncertainty": true
+    },
+    {
+      "frame": 188,
+      "manual_edge_direction_deg": -5.343055758575169,
+      "estimated_axis_deg": 0.4100747063962231,
+      "edge_direction_difference_deg": 5.753130464971392,
+      "endpoint_angle_uncertainty_estimate_deg": 4.912830570452486,
+      "within_estimated_endpoint_uncertainty": false
+    },
+    {
+      "frame": 225,
+      "manual_edge_direction_deg": -4.624151328429072,
+      "estimated_axis_deg": -2.453273545654106,
+      "edge_direction_difference_deg": 2.1708777827749657,
+      "endpoint_angle_uncertainty_estimate_deg": 4.191717369294623,
+      "within_estimated_endpoint_uncertainty": true
+    },
+    {
+      "frame": 338,
+      "manual_edge_direction_deg": -6.277298489597555,
+      "estimated_axis_deg": -4.155804591686923,
+      "edge_direction_difference_deg": 2.121493897910632,
+      "endpoint_angle_uncertainty_estimate_deg": 5.6765787361303515,
+      "within_estimated_endpoint_uncertainty": true
+    },
+    {
+      "frame": 414,
+      "manual_edge_direction_deg": -8.13010235415598,
+      "estimated_axis_deg": -10.127604098918695,
+      "edge_direction_difference_deg": 1.9975017447627152,
+      "endpoint_angle_uncertainty_estimate_deg": 4.7554308165518515,
+      "within_estimated_endpoint_uncertainty": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "total_frames": 897,
+  "total_instances": 2424,
+  "empty_frames": 12,
+  "train_frames": 585,
+  "val_frames": 312,
+  "flagged_frames": 825,
+  "annotation_type": "SAM2 automatic pseudo-labels; not manually verified",
+  "instance_mask_format": "PNG: 0 background, values 1..3 are video-local instance IDs",
+  "yolo_limitation": "Polygon labels fill internal holes; original instance PNGs retain model masks",
+  "gpu_peak_allocated_mib": 609.9599609375
+}

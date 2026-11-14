@@ -1,0 +1,68 @@
+{
+  "selected_weights": "/home/jerry/robot/models/CT_seg.pt",
+  "selected_run": "/home/jerry/robot/runs/segment/metal_part_yolov8s_seg_refine",
+  "selection_metric": "metrics/mAP50-95(M)",
+  "selected_metrics": {
+    "metrics/precision(B)": 0.7307,
+    "metrics/recall(B)": 0.65648,
+    "metrics/mAP50(B)": 0.7282,
+    "metrics/mAP50-95(B)": 0.42746,
+    "metrics/precision(M)": 0.71954,
+    "metrics/recall(M)": 0.63981,
+    "metrics/mAP50(M)": 0.69479,
+    "metrics/mAP50-95(M)": 0.3569,
+    "val/box_loss": 1.3745,
+    "val/seg_loss": 4.4625,
+    "val/cls_loss": 1.40457,
+    "val/dfl_loss": 1.76415,
+    "val/sem_loss": 0.0,
+    "fitness": 0.78436
+  },
+  "sha256": "7d59816996ed296b30e10274c6f5cba73f75c3a9ad6364a3f5975b823d0cd5e6",
+  "runs": [
+    {
+      "run": "/home/jerry/robot/runs/segment/metal_part_yolov8s_seg",
+      "weights": "/home/jerry/robot/runs/segment/metal_part_yolov8s_seg/weights/best.pt",
+      "completed_epochs": 32,
+      "metrics": {
+        "metrics/precision(B)": 0.67465,
+        "metrics/recall(B)": 0.53301,
+        "metrics/mAP50(B)": 0.55998,
+        "metrics/mAP50-95(B)": 0.33003,
+        "metrics/precision(M)": 0.69093,
+        "metrics/recall(M)": 0.511,
+        "metrics/mAP50(M)": 0.51541,
+        "metrics/mAP50-95(M)": 0.28225,
+        "val/box_loss": 1.49085,
+        "val/seg_loss": 4.68788,
+        "val/cls_loss": 1.73715,
+        "val/dfl_loss": 1.66715,
+        "val/sem_loss": 0.0,
+        "fitness": 0.61228
+      }
+    },
+    {
+      "run": "/home/jerry/robot/runs/segment/metal_part_yolov8s_seg_refine",
+      "weights": "/home/jerry/robot/runs/segment/metal_part_yolov8s_seg_refine/weights/best.pt",
+      "completed_epochs": 22,
+      "metrics": {
+        "metrics/precision(B)": 0.7307,
+        "metrics/recall(B)": 0.65648,
+        "metrics/mAP50(B)": 0.7282,
+        "metrics/mAP50-95(B)": 0.42746,
+        "metrics/precision(M)": 0.71954,
+        "metrics/recall(M)": 0.63981,
+        "metrics/mAP50(M)": 0.69479,
+        "metrics/mAP50-95(M)": 0.3569,
+        "val/box_loss": 1.3745,
+        "val/seg_loss": 4.4625,
+        "val/cls_loss": 1.40457,
+        "val/dfl_loss": 1.76415,
+        "val/sem_loss": 0.0,
+        "fitness": 0.78436
+      }
+    }
+  ],
+  "dataset": "585 training frames and 312 held-out video frames; SAM2 automatic pseudo-labels",
+  "production_accuracy_verified": false
+}

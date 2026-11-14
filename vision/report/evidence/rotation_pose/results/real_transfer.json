@@ -1,0 +1,84 @@
+[
+  {
+    "image": "real_02",
+    "ground_truth_angle_deg": null,
+    "features": {
+      "accepted": false,
+      "angle_deg": null,
+      "angle_mod90_deg": null,
+      "reason": "insufficient_geometric_support",
+      "diagnostics": {
+        "reference_keypoints": 2163,
+        "query_keypoints": 1600,
+        "matches": 19,
+        "inliers": 4,
+        "inlier_ratio": 0.21052631578947367,
+        "coverage": 0.25661701789261326
+      }
+    },
+    "geometry": {
+      "accepted": true,
+      "angle_deg": -2.5448063693210656,
+      "angle_mod90_deg": -2.5448063693210656,
+      "ambiguity_period_deg": 90,
+      "reason": "accepted_modulo_90",
+      "diagnostics": {
+        "reference": {
+          "orientation_deg": 0.0,
+          "foreground_fraction": 0.46832275390625,
+          "rectangularity": 0.8590461262875057,
+          "aspect_ratio": 1.2658730158730158
+        },
+        "query": {
+          "orientation_deg": -2.5448063693210656,
+          "foreground_fraction": 0.4335734049479167,
+          "rectangularity": 0.8964014412247957,
+          "aspect_ratio": 1.3664365258772473
+        },
+        "background_intensity": 220.0,
+        "contrast_threshold": 86.0
+      }
+    }
+  },
+  {
+    "image": "real_03",
+    "ground_truth_angle_deg": null,
+    "features": {
+      "accepted": false,
+      "angle_deg": null,
+      "angle_mod90_deg": null,
+      "reason": "insufficient_geometric_support",
+      "diagnostics": {
+        "reference_keypoints": 2163,
+        "query_keypoints": 1600,
+        "matches": 18,
+        "inliers": 4,
+        "inlier_ratio": 0.2222222222222222,
+        "coverage": 0.04589184875279442
+      }
+    },
+    "geometry": {
+      "accepted": true,
+      "angle_deg": -2.2025959714510464,
+      "angle_mod90_deg": -2.2025959714510464,
+      "ambiguity_period_deg": 90,
+      "reason": "accepted_modulo_90",
+      "diagnostics": {
+        "reference": {
+          "orientation_deg": 0.0,
+          "foreground_fraction": 0.46832275390625,
+          "rectangularity": 0.8590461262875057,
+          "aspect_ratio": 1.2658730158730158
+        },
+        "query": {
+          "orientation_deg": -2.2025959714510464,
+          "foreground_fraction": 0.4407552083333333,
+          "rectangularity": 0.8617354334869582,
+          "aspect_ratio": 1.2481237367276092
+        },
+        "background_intensity": 220.0,
+        "contrast_threshold": 81.0
+      }
+    }
+  }
+]

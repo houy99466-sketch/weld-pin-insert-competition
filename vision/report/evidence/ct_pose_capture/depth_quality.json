@@ -1,0 +1,11 @@
+{
+  "target_instance": 0,
+  "mask_pixels": 38234,
+  "valid_depth_pixels": 29687,
+  "valid_depth_fraction": 0.7764555108019041,
+  "depth_percentiles_m": [
+    0.16900000802706927,
+    0.17600000835955143,
+    0.18400000873953104
+  ]
+}

@@ -1,0 +1,49 @@
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# ---------- 真机调试台产物 ----------
+real_robot/logs/
+real_robot/web/cam_videos/
+real_robot/web/recordings/
+real_robot/web/*.broken_*
+*.log
+
+# ---------- 视觉 ----------
+vision/runs/*
+!vision/runs/.gitkeep
+vision/weights/*
+!vision/weights/.gitkeep
+vision/dataset/images/
+vision/dataset/labels/
+vision/dataset/raw/
+*.pt
+*.onnx
+*.engine
+
+# 视频默认不入库；报告素材里的演示视频例外
+*.mp4
+*.avi
+*.gif
+!vision/report/videos/*.mp4
+
+# ---------- 临时 ----------
+*.tmp
+*.bak
+~$*
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- 编辑器 ----------
+.vscode/
+.idea/
+*.swp

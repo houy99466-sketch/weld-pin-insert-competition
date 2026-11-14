@@ -1,0 +1,21 @@
+{
+  "engine": "X-AnyLabeling SegmentAnything2Video",
+  "engine_source": "/home/jerry/robot/X-AnyLabeling/anylabeling/services/auto_labeling/segment_anything_2_video.py",
+  "engine_source_sha256": "b20e4dbbc95114f4c8a6271a9fb301bf881101891851f44a8aee517a880cd069",
+  "sam2_source": {
+    "repository": "https://github.com/CVHub520/segment-anything-2",
+    "branch": "camera",
+    "revision": "9238368a6db458f2e693bd10919f9827a09240cf",
+    "files": 34
+  },
+  "sam2_checkpoint": "/home/jerry/robot/models/sam2_hiera_tiny.pt",
+  "sam2_checkpoint_sha256": "65b50056e05bcb13694174f51bb6da89c894b57b75ccdf0ba6352c597c5d1125",
+  "prompts_sha256": "f6473fe409cd57e732a5e114fe2889db1ca22a9d0b127bd0ab0bea93ca2cdb95",
+  "classes": [
+    "CT",
+    "DT",
+    "TT"
+  ],
+  "training_task": "instance segmentation",
+  "training_config": "/home/jerry/robot/train_yolov8s_seg_mixed.yaml"
+}

@@ -1,0 +1,6 @@
+{
+  "total_frames": 3209,
+  "unique_encoded_frames": 3209,
+  "cross_split_exact_duplicates": [],
+  "split_rule": "whole videos: 01/02 train, 03 val"
+}

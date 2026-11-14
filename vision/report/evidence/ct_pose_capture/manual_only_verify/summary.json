@@ -1,0 +1,7 @@
+{
+  "frames": 90,
+  "elapsed_s": 14.339560775999416,
+  "initialization_capture": "/home/jerry/robot/ct_pose_capture",
+  "tracking_median_s": 0.025903129999278462,
+  "accuracy_verified": false
+}

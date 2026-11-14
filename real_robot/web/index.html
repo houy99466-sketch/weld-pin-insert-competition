@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>reBot Arm B601-DM · 调试台</title>
+<style>
+  :root{
+    --bg:#0b0e12; --panel:#131821; --panel2:#0f141c; --line:#22303f;
+    --txt:#dfe7f1; --dim:#7d8ea3; --accent:#37d67a; --accent2:#2b8cff;
+    --warn:#ffb020; --danger:#ff4d4f;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Cascadia Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#16202c 0%,var(--bg) 55%);
+       color:var(--txt);font:14px/1.55 "Segoe UI",system-ui,"Microsoft YaHei",sans-serif;min-height:100vh}
+
+  /* ---------- 顶栏 ---------- */
+  header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);
+         background:linear-gradient(180deg,#141b26,#0d1219);position:sticky;top:0;z-index:10}
+  header h1{font-size:16px;margin:0;letter-spacing:.5px;font-weight:600}
+  header .sub{color:var(--dim);font-size:12px;font-family:var(--mono)}
+  .badges{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .badge{font-family:var(--mono);font-size:12px;padding:3px 9px;border-radius:999px;
+         border:1px solid var(--line);color:var(--dim);background:#0d131b;white-space:nowrap}
+  .badge.on{color:#0b1a12;background:var(--accent);border-color:var(--accent);font-weight:700}
+  .badge.run{color:#08121f;background:var(--accent2);border-color:var(--accent2);font-weight:700}
+  .badge.err{color:#2a0708;background:var(--danger);border-color:var(--danger);font-weight:700}
+
+  .err{display:none;margin:10px 20px 0;padding:10px 14px;border-radius:10px;background:#2b1214;
+       border:1px solid #5a1f22;color:#ffb4b6;font-size:13px;white-space:pre-wrap}
+  .err.show{display:block}
+
+  /* ---------- 布局 ---------- */
+  main{display:grid;grid-template-columns:330px 360px 1fr;gap:14px;padding:14px 20px 28px;align-items:start}
+  @media (max-width:1500px){main{grid-template-columns:330px 1fr}}
+  @media (max-width:1050px){main{grid-template-columns:1fr}}
+  .col{display:flex;flex-direction:column;gap:14px;min-width:0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .card>h2{margin:0 0 10px;font-size:12.5px;color:var(--dim);font-weight:700;
+           letter-spacing:.7px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+  .card>h2 .n{display:inline-flex;width:18px;height:18px;border-radius:5px;background:#1d2836;
+              color:#8fb3d9;font-size:11px;align-items:center;justify-content:center;font-weight:700}
+  .card>h2 .tag{margin-left:auto;font-weight:400;color:#5d738b;text-transform:none;letter-spacing:0}
+
+  .row{display:flex;gap:8px;margin-top:8px}
+  .row:first-of-type{margin-top:0}
+  .row>*{flex:1;min-width:0}
+  button.b{background:#1a2330;color:var(--txt);border:1px solid var(--line);border-radius:9px;
+           padding:9px 10px;cursor:pointer;font-size:13px;white-space:nowrap}
+  button.b:hover{border-color:#31465c;background:#1e2938}
+  button.b:disabled{opacity:.45;cursor:not-allowed}
+  button.b.danger{background:#2b1214;border-color:#5a1f22;color:#ff8a8d}
+  button.b.warn{background:#2a2113;border-color:#5a4520;color:#ffc766}
+  button.b.go{background:#153a29;border-color:#2b8c5f;color:#d8ffe9}
+  button.big{width:100%;padding:15px;border-radius:11px;border:1px solid #1f6b45;cursor:pointer;
+             background:linear-gradient(180deg,#2bdc84,#18a862);color:#04160d;font-size:15px;font-weight:800}
+  button.big:disabled{filter:grayscale(.85);opacity:.5;cursor:not-allowed}
+  .sel{background:#0d131b;color:var(--txt);border:1px solid var(--line);border-radius:9px;
+       padding:8px 6px;font-family:var(--mono);font-size:12.5px;min-width:0;width:100%}
+  label.chk{display:flex;align-items:center;gap:7px;color:var(--dim);font-size:12.5px}
+  .kv{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:12px;padding:2px 0;color:var(--dim)}
+  .kv span:first-child{flex:none}
+  .kv span:last-child{color:var(--txt);text-align:right;word-break:break-all}
+  .hint{font-size:11.5px;color:var(--dim);margin-top:8px;line-height:1.5}
+  .divider{height:1px;background:var(--line);margin:10px 0}
+
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+  th,td{padding:4px 5px;text-align:right;border-bottom:1px solid #182230}
+  th{color:var(--dim);font-weight:500;font-size:11px}
+  td:first-child,th:first-child{text-align:left}
+  .bar{position:relative;height:6px;background:#0a0f15;border-radius:4px;overflow:hidden;min-width:60px}
+  .bar i{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,#1f6b45,#37d67a)}
+  .bar b{position:absolute;top:-2px;width:2px;height:10px;background:#44566c}
+
+  canvas{width:100%;height:auto;display:block;border-radius:10px;
+         background:radial-gradient(700px 300px at 30% 0%,#16202b,#0c1118)}
+  .legend{display:flex;gap:14px;font-size:11px;color:var(--dim);margin-top:6px;font-family:var(--mono)}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  .phase{display:flex;align-items:center;gap:10px;margin:8px 0}
+  .phase .name{font-weight:700;min-width:96px}
+  .prog{flex:1;height:8px;background:#0a0f15;border-radius:5px;overflow:hidden}
+  .prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2b8cff,#37d67a);transition:width .12s}
+  #log{height:150px;overflow:auto;background:var(--panel2);border:1px solid var(--line);border-radius:9px;
+       padding:8px 10px;font-family:var(--mono);font-size:11.5px;color:#9fb2c8;white-space:pre-wrap}
+  #log .p{color:var(--accent)} #log .e{color:#ff8a8d}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>reBot Arm B601-DM · 调试台</h1>
+  <a href="/cam" style="color:#7d8ea3;text-decoration:none;font-size:13px;border:1px solid #22303f;padding:4px 10px;border-radius:8px">📷 摄像头 / 录制</a>
+  <div class="sub" id="conn">串口 —</div>
+  <div class="badges">
+    <div class="badge" id="bPort">串口 未占用</div>
+    <div class="badge" id="bRun">空闲</div>
+    <div class="badge" id="bFault">故障 0</div>
+    <div class="badge" id="bVer" title="点击强制刷新页面" style="cursor:pointer">页面 —</div>
+  </div>
+</header>
+<div class="err" id="err"></div>
+<div class="err" id="jobErr" style="background:#2a1f10;border-color:#6b4a1c;color:#ffd79a">
+  <span id="jobErrText"></span>
+  <span style="float:right;cursor:pointer;color:#c9a25e" id="jobErrClose" title="关闭">✕</span>
+</div>
+
+<main>
+  <!-- ============ 第 1 列：设备 · 安全 · 标定 ============ -->
+  <div class="col">
+    <section class="card">
+      <h2><span class="n">1</span>设备与安全</h2>
+      <div class="row">
+        <button class="b" id="btnEnable">使能（上电保持）</button>
+        <button class="b" id="btnDisable">失能（徒手可搬）</button>
+      </div>
+      <div class="row">
+        <button class="b danger" id="btnStop">■ 急停 / 卸力矩</button>
+        <button class="b" id="btnState">↻ 读状态</button>
+      </div>
+      <div class="row">
+        <button class="b warn" id="btnInterrupt2" style="width:100%">⏸ 中断动作（保持使能）</button>
+      </div>
+      <div class="row">
+        <button class="b" id="btnOpen">占用串口</button>
+        <button class="b warn" id="btnRelease">释放给 MotorBridge</button>
+      </div>
+      <div class="row">
+        <select id="portSel" class="sel"><option value="">（检测中…）</option></select>
+        <button class="b" id="btnPort" style="flex:0 0 84px">切换端口</button>
+      </div>
+      <div class="divider"></div>
+      <div class="kv"><span>串口</span><span id="iPort">—</span></div>
+      <div class="kv"><span>波特率</span><span id="iBaud">—</span></div>
+      <div class="kv"><span>电机</span><span id="iMotor">—</span></div>
+      <div class="kv"><span>TCP (x,y,z)</span><span id="iTcp">—</span></div>
+      <div class="kv"><span>起始位°</span><span id="iHome">—</span></div>
+      <div class="row">
+        <button class="b" id="btnRec">记录起始位</button>
+        <button class="b" id="btnHome">回起始位</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">2</span>零校准<span class="tag">写进电机 flash</span></h2>
+      <div class="row">
+        <button class="b" id="btnZeroDry">预演（只看当前角）</button>
+      </div>
+      <div class="row">
+        <button class="b warn" id="btnZeroAll">把当前姿态设为零点</button>
+      </div>
+      <div class="hint" id="zeroHint">摆到已知基准姿态 → 一键把当前角度写成零点。校准后所有示教槽位与录制都要重录。</div>
+    </section>
+  </div>
+
+  <!-- ============ 第 2 列：任务 · 示教 ============ -->
+  <div class="col">
+    <section class="card">
+      <h2><span class="n">3</span>抓取 · 装配任务<span class="tag">视觉输入 + 槽位</span></h2>
+      <div class="row">
+        <select id="tPart" class="sel"><option value="A">工件 A</option><option value="B">工件 B</option></select>
+        <select id="tForm" class="sel">
+          <option value="upright">正（直接抓）</option>
+          <option value="side">侧（推立→抓）</option>
+          <option value="flipped">倒（推倒→推立→抓）</option>
+        </select>
+      </div>
+      <div class="row">
+        <label class="chk" style="flex:0 0 58px">角度°</label>
+        <input id="tAngle" class="sel" type="number" value="0" step="5" style="flex:1" />
+      </div>
+      <div class="divider"></div>
+      <div class="grid2">
+        <button class="b" id="btnSaveGrasp">存「抓取位」</button>
+        <button class="b" id="btnSavePlace">存「装配位」</button>
+      </div>
+      <label class="chk" style="margin-top:8px">
+        <input type="checkbox" id="showPush" /> 显示推件槽位（倒/侧 流程用，现在不需要）
+      </label>
+      <div class="grid2" id="pushSlots" style="display:none;margin-top:8px">
+        <button class="b" id="btnSavePush1a">存 推倒·起点</button>
+        <button class="b" id="btnSavePush1b">存 推倒·终点</button>
+        <button class="b" id="btnSavePush2a">存 推立·起点</button>
+        <button class="b" id="btnSavePush2b">存 推立·终点</button>
+      </div>
+      <div class="row">
+        <button class="b" id="btnTaskDry">预演（不动）</button>
+        <button class="b go" id="btnTaskRun">▶ 执行任务</button>
+      </div>
+      <div class="row">
+        <button class="b warn" id="btnPush1">测试：推倒（倒→侧）</button>
+        <button class="b warn" id="btnPush2">测试：推立（侧→正）</button>
+      </div>
+      <div class="hint" id="slotHint">槽位：—</div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">4</span>夹爪<span class="tag">独立，随时可用</span></h2>
+      <div class="row">
+        <button class="b go" id="btnGripClose">夹紧（夹到夹不动）</button>
+        <button class="b" id="btnGripOpen">张开</button>
+      </div>
+      <div class="hint">不需要开始示教；只驱动 J7（夹爪），其他关节不动。示教中点击则作用于示教流程。</div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">5</span>示教 · 录制 · 回放</h2>
+      <div class="row"><button class="big" id="btnTeach">● 开始示教（卸力，可徒手搬）</button></div>
+      <div class="kv" style="margin-top:8px"><span>示教状态</span><span id="tState">未开始</span></div>
+      <div class="kv"><span>已录</span><span id="tInfo">—</span></div>
+      <div class="divider"></div>
+      <div class="row" style="align-items:center">
+        <span class="mono" style="flex:1;color:var(--dim)">主臂（另一台 6 轴）</span>
+        <span class="mono" id="leadBadge" style="color:#5d738b">未打开</span>
+      </div>
+      <div class="row">
+        <input class="sel" id="leadPort" value="COM22" style="flex:1" />
+        <button class="b" id="btnLeadOpen" style="flex:0 0 92px">打开主臂</button>
+        <button class="b" id="btnLeadClose" style="flex:0 0 62px">关闭</button>
+      </div>
+      <table id="leadTbl">
+        <thead><tr><th>关节</th><th>主臂°</th><th>方向+</th><th>从臂目标°</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="row" style="margin-top:8px">
+        <button class="big" id="btnLeadTeach">● 开始主从跟随（只跟随，不录制）</button>
+      </div>
+      <label class="chk" style="margin-top:4px"><input type="checkbox" id="leadKeep" checked /> 停止后保持使能（原地锁住，不卸力）</label>
+      <div class="hint">主臂只读、永不上电，可徒手拖。<b>主从跟随只是一种模式，本身不录制</b>：
+        点上面那个『开始示教』才开录（跟随中它自动变成录制开关），停录即落盘、跟随不中断。
+        从臂走「相对增量」映射：<span class="mono">target = S0 + sign·gain·(L − L0)</span>，单关节最大行程 130°。</div>
+      <div class="divider"></div>
+      <select id="recSel" class="sel"><option value="">（还没有录制）</option></select>
+      <div class="row">
+        <button class="b" id="btnPlay">▶ 回放选中</button>
+      </div>
+      <div class="row">
+        <button class="b warn" id="btnInterrupt" style="width:100%">⏸ 中断（保持使能，原地停住）</button>
+      </div>
+      <div class="row">
+        <button class="b" id="btnRecRename">重命名</button>
+        <button class="b" id="btnRecNote">备注</button>
+        <button class="b danger" id="btnRecDel">删除</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ 第 3 列：监视 ============ -->
+  <div class="col">
+    <section class="card">
+      <h2><span class="n">6</span>关节实时状态<span class="tag">OFF=失能 ON=使能</span></h2>
+      <table>
+        <thead><tr><th>关节</th><th>角度°</th><th>行程</th><th>速度</th><th>力矩</th><th>状态</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="row" style="margin-top:10px">
+        <button class="b" id="btnRun">▶ 标准动作链（前+上）</button>
+      </div>
+      <div class="row">
+        <label class="chk" style="flex:1">倍率 <span id="scaleVal" style="color:var(--accent);font-weight:700">1.00×</span></label>
+        <input class="slider" type="range" id="scale" min="0.2" max="2.0" step="0.05" value="1" style="flex:2" />
+      </div>
+      <label class="chk" style="margin-top:6px"><input type="checkbox" id="stay" /> 停在目标位（不回程）</label>
+      <div class="hint" id="planHint">—</div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">7</span>侧视姿态<span class="tag">X 前 / Z 上，mm</span></h2>
+      <canvas id="cv" width="760" height="430"></canvas>
+      <div class="legend">
+        <span><i class="dot" style="background:#37d67a"></i>实际姿态</span>
+        <span><i class="dot" style="background:#2b8cff"></i>目标姿态</span>
+        <span><i class="dot" style="background:#ffb020"></i>TCP 轨迹</span>
+      </div>
+      <div class="phase"><span class="name" id="pName">空闲</span>
+        <div class="prog"><i id="pBar"></i></div>
+        <span class="mono" id="pPct">—</span>
+      </div>
+      <div id="log">等待操作…</div>
+    </section>
+
+    <section class="card">
+      <h2><span class="n">8</span>标准动作链定义<span class="tag">后端 PLAN</span></h2>
+      <table>
+        <thead><tr><th>段</th><th style="text-align:left">名称</th><th>时长</th><th style="text-align:left">目标</th></tr></thead>
+        <tbody id="planBody"></tbody>
+      </table>
+    </section>
+  </div>
+</main>
+
+<script>
+// ---------- 常量 ----------
+const NAMES = ["J1","J2","J3","J4","J5","J6","J7"];
+const PAGE_VER = "__PAGE_VER__";
+let PLAN = [], MAIN_DELTA = {};
+let LIMITS_DEG = [[-160,160],[-180,0],[-180,0],[-107,90],[-90,90],[-180,180],[-140,720]];
+
+const CHAIN = [
+  {xyz:[-8.416e-05,0,0.08465], rpy:[0,0,0],          axis:[0,0,1],  mov:true},
+  {xyz:[0.020084,0.031625,0.05555], rpy:[-1.5708,0,0], axis:[0,0,-1], mov:true},
+  {xyz:[-0.264,0,0], rpy:[0,0,0],                     axis:[0,0,1],  mov:true},
+  {xyz:[0.2426,-0.054,-0.001625], rpy:[0,0,0],        axis:[0,0,1],  mov:true},
+  {xyz:[0.078308,-0.0375,-0.03], rpy:[-1.5708,0,0],   axis:[0,0,1],  mov:true},
+  {xyz:[0.028008,0,0.04], rpy:[0,1.5708,0],           axis:[0,0,1],  mov:true},
+  {xyz:[0,0,0.15539], rpy:[0,-1.5708,3.1415],         axis:[0,0,0],  mov:false},
+];
+const mul=(A,B)=>A.map((r,i)=>B[0].map((_,j)=>r.reduce((s,v,k)=>s+v*B[k][j],0)));
+const I4=()=>[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
+const T=(R,t)=>[[...R[0],t[0]],[...R[1],t[1]],[...R[2],t[2]],[0,0,0,1]];
+function rx(a){const c=Math.cos(a),s=Math.sin(a);return[[1,0,0],[0,c,-s],[0,s,c]];}
+function ry(a){const c=Math.cos(a),s=Math.sin(a);return[[c,0,s],[0,1,0],[-s,0,c]];}
+function rz(a){const c=Math.cos(a),s=Math.sin(a);return[[c,-s,0],[s,c,0],[0,0,1]];}
+function rpy(r,p,y){return mul(mul(rz(y),ry(p)),rx(r));}
+function axisRot(ax,ang){const n=Math.hypot(...ax),x=ax[0]/n,y=ax[1]/n,z=ax[2]/n;
+  const c=Math.cos(ang),s=Math.sin(ang),C=1-c;
+  return [[x*x*C+c,x*y*C-z*s,x*z*C+y*s],[y*x*C+z*s,y*y*C+c,y*z*C-x*s],[z*x*C-y*s,z*y*C+x*s,z*z*C+c]];}
+function fkChain(q){ let M=I4(); const pts=[];
+  for(let i=0;i<CHAIN.length;i++){ const c=CHAIN[i];
+    M=mul(M,T(rpy(...c.rpy),c.xyz)); pts.push([M[0][3],M[1][3],M[2][3]]);
+    if(c.mov && i<q.length){ M=mul(M,T(axisRot(c.axis,q[i]),[0,0,0])); } }
+  return {pts, tcp:pts[pts.length-1]}; }
+const D2R=Math.PI/180;
+
+// ---------- 状态 ----------
+let S={deg:NAMES.map(()=>null),vel:[],torq:[],status:[],fault:[]};
+let jobLog=[], lastTcpTrace=[], ghost=null, teaching=false, running=false;
+const $=id=>document.getElementById(id);
+function setErr(m){const e=$("err"); if(!m){e.className="err";e.textContent="";return;} e.className="err show"; e.textContent=m;}
+// 任务/示教类错误：单独一条，不自动消失，避免和状态轮询互相闪烁
+function setJobErr(m){
+  const e=$("jobErr");
+  if(!m){ e.className="err"; $("jobErrText").textContent=""; return; }
+  e.className="err show"; $("jobErrText").textContent="⚠ "+m;
+}
+$("jobErrClose").onclick = ()=>setJobErr("");
+function badge(el,t,c){el.textContent=t; el.className="badge"+(c?" "+c:"");}
+
+async function api(path, body){
+  const opt = body===undefined?{}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)};
+  const r = await fetch(path,opt);
+  const j = await r.json().catch(()=>({ok:false,error:"响应不是 JSON"}));
+  if(!j.ok) throw new Error(j.error||("HTTP "+r.status));
+  return j;
+}
+
+// ---------- 渲染 ----------
+function renderTable(){
+  const tb=$("tbody"); tb.innerHTML="";
+  const infos=[];
+  for(let i=0;i<7;i++){
+    const d=S.deg[i], [lo,hi]=LIMITS_DEG[i];
+    const pos = d==null?0:Math.min(1,Math.max(0,(d-lo)/(hi-lo)));
+    const st=S.status[i], stTxt = st===1?"ON":st===0?"OFF":"—";
+    const stCls = st===1?"color:#37d67a":st===0?"color:#7d8ea3":"color:#ffb020";
+    const f=S.fault[i], fTxt=(f===undefined||f===null)?"—":(f===0?"0":String(f));
+    tb.insertAdjacentHTML("beforeend",`<tr>
+      <td>${NAMES[i]}</td><td>${d==null?"—":d.toFixed(2)}</td>
+      <td><div class="bar"><i style="left:${(pos*100).toFixed(1)}%;width:4px"></i>
+        <b style="left:${(Math.min(1,Math.max(0,(0-lo)/(hi-lo)))*100).toFixed(1)}%"></b></div></td>
+      <td>${S.vel[i]==null?"—":S.vel[i].toFixed(2)}</td>
+      <td>${S.torq[i]==null?"—":S.torq[i].toFixed(2)}</td>
+      <td style="${stCls}">${stTxt}${f?` / <span style="color:#ff4d4f">F${fTxt}</span>`:""}</td></tr>`);
+  }
+  const nf=(S.fault||[]).filter(v=>v).length;
+  badge($("bFault"), nf?`故障 ${nf}`:"故障 0", nf?"err":"");
+}
+
+function renderPlan(){
+  const scale=parseFloat($("scale").value);
+  const tb=$("planBody"); tb.innerHTML="";
+  for(const st of PLAN){
+    const parts=[];
+    if(st.ik) parts.push(`IK 臂系 前${(st.ik.forward*scale).toFixed(0)} 侧${(st.ik.lateral*scale).toFixed(0)} 上${(st.ik.up*scale).toFixed(0)} mm`);
+    for(const [k,v] of Object.entries(st.deltas||{})) parts.push(`${k} ${v*scale>=0?"+":""}${(v*scale).toFixed(1)}`);
+    if(st.grip) parts.push(`J7→${({open:"张开端",close:"闭合端",release:"释放位"})[st.grip]||st.grip}`);
+    const txt = st.home?"全部回起始位":(parts.length?parts.join("  "):"保持");
+    tb.insertAdjacentHTML("beforeend",
+      `<tr><td>${st.id}</td><td style="text-align:left">${st.name}</td><td>${st.dur?st.dur.toFixed(1)+"s":"—"}</td>
+       <td style="text-align:left;font-size:11px;color:#9fb2c8">${txt}</td></tr>`);
+  }
+  $("planHint").textContent = `标准动作链：主运动用 IK 求臂系 前/上，夹爪端由运行时标定`;
+  $("scaleVal").textContent = scale.toFixed(2)+"×";
+}
+
+function draw(){
+  const cv=$("cv"), ctx=cv.getContext("2d"), W=cv.width, H=cv.height;
+  ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,W,H);
+  const S0=1.05, ox=110, oy=H-60;
+  const px=p=>[ox+p[0]*1000*S0, oy-p[2]*1000*S0];
+  ctx.strokeStyle="#16202b";
+  for(let g=0;g<=600;g+=100){ const y=oy-g*S0; if(y<8||y>H)continue;
+    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+    ctx.fillStyle="#2b3a4b";ctx.font="10px ui-monospace";ctx.fillText(g+"mm",4,y-2); }
+  for(let g=0;g<=700;g+=100){ const x=ox+g*S0; if(x>W)continue;
+    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
+  ctx.fillStyle="#0e141c"; ctx.fillRect(0,oy,W,H-oy);
+  ctx.strokeStyle="#233243"; ctx.beginPath();ctx.moveTo(0,oy);ctx.lineTo(W,oy);ctx.stroke();
+  const hasData=(S.deg||[]).some(v=>v!=null);
+  if(!hasData){ ctx.fillStyle="#4a5c70";ctx.font="15px ui-monospace";
+    ctx.fillText("无关节数据（串口未连接 / 未读数）",150,H/2); $("iTcp").textContent="—"; ghost=null; return; }
+  const q=S.deg.slice(0,6).map(v=>v==null?0:v*D2R);
+  const cur=fkChain(q);
+  if(ghost){ ctx.save(); ctx.setLineDash([6,5]); ctx.strokeStyle="#2b8cff"; ctx.lineWidth=3;
+    const gp=ghost.map(px); ctx.beginPath(); gp.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p)); ctx.stroke(); ctx.restore(); }
+  const pp=cur.pts.map(px);
+  ctx.lineCap="round"; ctx.lineJoin="round";
+  for(let i=1;i<pp.length;i++){ ctx.strokeStyle=i<6?"#24384b":"#1d2b39"; ctx.lineWidth=11;
+    ctx.beginPath();ctx.moveTo(...pp[i-1]);ctx.lineTo(...pp[i]);ctx.stroke(); }
+  for(let i=1;i<pp.length-1;i++){ ctx.fillStyle="#37d67a"; ctx.beginPath();ctx.arc(...pp[i],4.5,0,7); ctx.fill(); }
+  ctx.fillStyle="#22303f"; ctx.fillRect(px([0,0,0])[0]-16,oy-12,32,12);
+  const tcpPx=px(cur.tcp); lastTcpTrace.push(tcpPx.slice());
+  if(lastTcpTrace.length>260) lastTcpTrace.shift();
+  ctx.strokeStyle="rgba(255,176,32,.85)";ctx.lineWidth=1.6;ctx.beginPath();
+  lastTcpTrace.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();
+  ctx.fillStyle="#ffb020"; ctx.beginPath();ctx.arc(...tcpPx,5,0,7);ctx.fill();
+  ctx.font="11px ui-monospace"; ctx.fillStyle="#ffd27a";
+  ctx.fillText(`TCP ${(cur.tcp[0]*1000).toFixed(0)}, ${(cur.tcp[1]*1000).toFixed(0)}, ${(cur.tcp[2]*1000).toFixed(0)} mm`, tcpPx[0]+9, tcpPx[1]-9);
+  $("iTcp").textContent=`${(cur.tcp[0]*1000).toFixed(1)}, ${(cur.tcp[1]*1000).toFixed(1)}, ${(cur.tcp[2]*1000).toFixed(1)}`;
+  ghost=null;
+}
+
+function logLine(txt,cls){
+  jobLog.push({txt,cls}); if(jobLog.length>400) jobLog.shift();
+  const el=$("log");
+  el.innerHTML=jobLog.map(v=>`<span class="${v.cls||""}">${v.txt}</span>`).join("\n");
+  el.scrollTop=el.scrollHeight;
+}
+
+function renderJob(j){
+  if(j.running){ badge($("bRun"),"运行中","run"); $("btnRun").disabled=true; $("btnTaskRun").disabled=true;
+    $("pName").textContent=j.phase||"…"; $("pBar").style.width=(j.pct||0)+"%";
+    $("pPct").textContent=(j.pct==null)?"—":(j.pct.toFixed(0)+"%");
+    const last=jobLog[jobLog.length-1];
+    if(j.phase && (!last||!last.txt.includes(j.phase))) logLine("▶ "+j.phase,"p");
+  }else{ badge($("bRun"),"空闲",""); $("btnRun").disabled=false; $("btnTaskRun").disabled=false;
+    if(j.error){ $("pName").textContent="已中止"; $("pBar").style.width="0%"; $("pPct").textContent="—"; }
+    else if(j.finished){ $("pName").textContent="完成"; $("pBar").style.width="100%"; $("pPct").textContent="100%"; } }
+  if(j.error) setJobErr(`${j.kind?j.kind+" · ":""}${j.error}`);
+}
+
+// ---------- 轮询 ----------
+async function pollState(){
+  try{
+    const r=await api("/api/state"); S=r.state; renderTable(); draw();
+    badge($("bPort"),"串口 已占用","on"); setErr("");
+  }catch(e){ badge($("bPort"),"串口 未占用",""); setErr("读状态失败："+e.message); }
+}
+async function pollJob(){
+  try{ const r=await api("/api/job"); renderJob(r.job); running=r.job.running; }catch(e){}
+}
+async function pollTeach(){
+  try{
+    const r=await api("/api/teach/state"), t=r.teach||{};
+    lastTeach = t;
+    teaching=!!t.running;
+    const lead = teaching && t.mode === "leader";
+    const rec = lead && !!t.recording;
+    if(lead) teachMode = "leader";
+    // 主从跟随时，这个按钮就是"录制开关"：一件设备、一个入口
+    $("btnTeach").textContent = lead
+      ? (rec ? `■ 停止录制并保存（${t.samples||0} 帧）` : "● 开始示教（跟随中：拖主臂 → 录制）")
+      : (teaching ? `■ 停止并保存（${(t.t||0).toFixed(1)}s / ${t.samples||0} 帧）`
+                   : "● 开始示教（卸力，可徒手搬）");
+    const hot = lead ? rec : teaching;
+    $("btnTeach").style.background = hot?"linear-gradient(180deg,#ff6b6b,#c62828)":"";
+    $("btnTeach").style.borderColor = hot?"#8e1f1f":"";
+    $("btnTeach").style.color = hot?"#fff":"";
+    $("tState").textContent = lead
+      ? (rec ? `主从 · 录制中 ${(t.t||0).toFixed(1)}s / ${t.samples||0} 帧  J7=${t.grip??"—"}°`
+             : `主从 · 跟随中（未录制）  J7=${t.grip??"—"}°`)
+      : (teaching
+         ? `录制中 ${(t.t||0).toFixed(1)}s  J7=${t.grip??"—"}°  峰值速度=${t.vmax??0} rad/s`
+         : (t.result?`已结束（${t.result.reason}）`:"未开始"));
+    $("tInfo").textContent = (teaching && !lead)?`${t.samples||0} 帧`
+      : (t.file?`已保存 ${t.file}（${t.samples||0} 帧）`:(lead?`${t.samples||0} 帧（跟随中）`:"—"));
+    $("btnLeadTeach").textContent = lead
+      ? "■ 停止主从跟随"
+      : "● 开始主从跟随（只跟随，不录制）";
+    $("btnLeadTeach").style.background = lead?"linear-gradient(180deg,#2b6cff,#1b47a8)":"";
+    $("btnLeadTeach").style.borderColor = lead?"#1b47a8":"";
+    $("btnLeadTeach").style.color = lead?"#fff":"";
+    if(lead && t.tau_max!=null) $("tState").textContent += `  最大力矩=${t.tau_max}Nm`;
+    if(t.err) setJobErr("示教异常："+t.err);
+  }catch(e){}
+}
+async function pollRecordings(){
+  try{
+    const r=await api("/api/recordings"); const sel=$("recSel"), cur=sel.value;
+    const list=r.recordings||[];
+    sel.innerHTML = list.length?"":`<option value="">（recordings 里没有 .json）</option>`;
+    for(const it of list){
+      const o=document.createElement("option"); o.value=it.name;
+      o.textContent = it.ok
+        ? `${it.name}  ${it.duration}s / ${it.samples}帧${it.note?"  【"+it.note+"】":""}`
+        : `${it.name}  ⚠ ${it.warn||"无法解析"}`;
+      if(!it.ok) o.style.color="#ff8a8d";
+      if(it.name===cur) o.selected=true;
+      sel.appendChild(o);
+    }
+  }catch(e){}
+}
+async function pollSlots(){
+  try{
+    const r=await api("/api/slots"), s=r.slots||{}, keys=Object.keys(s).sort();
+    $("slotHint").textContent = keys.length?("槽位："+keys.join(" / ")):"槽位：无 —— 摆好位姿后点对应『存…』按钮";
+  }catch(e){}
+}
+async function refreshInfo(){
+  try{
+    const info=await api("/api/info");
+    const verInjected=/^[0-9a-f]{10}$/.test(PAGE_VER);
+    if(info.page_ver && verInjected && info.page_ver!==PAGE_VER){
+      if(!window.__verReload){ window.__verReload=true; location.reload(); return info; } }
+    $("bVer").textContent="页面 "+(verInjected?PAGE_VER:"本地文件");
+    $("conn").textContent=`${info.port} @ ${info.baud}`;
+    $("iPort").textContent=info.port; $("iBaud").textContent=info.baud;
+    $("iMotor").textContent=info.models.join(" / ");
+    badge($("bPort"), info.held?"串口 已占用":"串口 未占用", info.held?"on":"");
+    if(info.home_deg) $("iHome").textContent=info.home_deg.map(v=>v?.toFixed(1)).join(", ");
+    PLAN=info.plan||[]; MAIN_DELTA=(PLAN.find(p=>p.id==="S3")||{}).deltas||{};
+    if(info.urdf_limits_deg) LIMITS_DEG=info.urdf_limits_deg.map(r=>[r[0],r[1]]).slice(0,6).concat([[-140,720]]);
+    const sel=$("portSel"), cur=sel.value; sel.innerHTML="";
+    const ps=info.ports||[];
+    if(!ps.length) sel.innerHTML=`<option value="">（未检测到串口）</option>`;
+    ps.forEach(p=>{ const o=document.createElement("option"); o.value=p.device;
+      o.textContent=`${p.likely_dm?"★ ":""}${p.device}  ${p.desc}`;
+      if(p.device===info.port||p.device===cur) o.selected=true; sel.appendChild(o); });
+    renderPlan(); return info;
+  }catch(e){ setErr("后端未就绪："+e.message); return null; }
+}
+
+// ---------- 交互：设备 ----------
+$("btnEnable").onclick = async()=>{ try{ S=(await api("/api/enable",{})).state; renderTable(); logLine("使能",""); }catch(e){setErr("使能失败："+e.message);} };
+$("btnDisable").onclick = async()=>{ try{ S=(await api("/api/disable",{})).state; renderTable(); logLine("失能（卸力矩）",""); }catch(e){setErr("失能失败："+e.message);} };
+$("btnStop").onclick = async()=>{ try{ await api("/api/abort",{}); logLine("■ 急停：已中止并卸力矩","e"); setErr("已急停。"); }catch(e){setErr("急停失败："+e.message);} };
+$("btnState").onclick = ()=>pollState();
+$("btnOpen").onclick = async()=>{ try{ await api("/api/open",{}); logLine("串口已占用",""); await pollState(); }catch(e){setErr("占用串口失败："+e.message);} };
+$("btnRelease").onclick = async()=>{ try{ await api("/api/release",{}); badge($("bPort"),"串口 未占用",""); logLine("串口已释放",""); }catch(e){setErr("释放失败："+e.message);} };
+$("btnPort").onclick = async()=>{ const com=$("portSel").value; if(!com)return;
+  try{ await api("/api/port",{com}); logLine("切换到 "+com,"p"); await pollState(); await refreshInfo(); }catch(e){setErr("切端口失败："+e.message);} };
+$("btnRec").onclick = async()=>{ try{ const r=await api("/api/record_home",{});
+  logLine("起始位已记录："+r.home_deg.map(v=>v?.toFixed(2)).join(", "),"p");
+  $("iHome").textContent=r.home_deg.map(v=>v?.toFixed(1)).join(", "); }catch(e){setErr("记录起始位失败："+e.message);} };
+$("btnHome").onclick = async()=>{ try{ jobLog=[]; lastTcpTrace=[]; $("log").innerHTML="";
+  await api("/api/home",{duration:4.0}); logLine("回到起始位…","p"); }catch(e){setErr("回起始位失败："+e.message);} };
+
+// ---------- 交互：零校准 ----------
+function renderZero(r){
+  const rows=r.rows||[];
+  logLine(r.dry_run?"零校准预演（未发指令）：":"零校准完成：","p");
+  for(const x of rows){
+    logLine(`  ${x.joint}  校准前 ${x.before_deg}°`+
+      (x.after_deg===undefined?"":`  →  ${x.after_deg}°  ${x.ok?"✔":"⚠"}`)+
+      (x.error?`  错误:${x.error}`:""));
+  }
+  if(!r.dry_run){ $("zeroHint").textContent="已写入电机零点。请重新示教抓取位/装配位。"; pollSlots(); }
+}
+$("btnZeroDry").onclick = async()=>{ try{ renderZero(await api("/api/zero/run",{joints:"all",dry_run:true})); }catch(e){setErr("零校准预演失败："+e.message);} };
+$("btnZeroAll").onclick = async()=>{
+  if(!confirm("确认把「当前物理姿态」写成 7 个电机零点？\n\n· 写入电机（掉电不丢）\n· 已存槽位/录制全部失效，需重录")) return;
+  try{ setErr(""); logLine("正在写零点（电机将卸力）…","p");
+    renderZero(await api("/api/zero/run",{joints:"all",dry_run:false})); }catch(e){setErr("零校准失败："+e.message);} };
+
+// ---------- 交互：槽位与任务 ----------
+async function saveSlot(name, label){
+  try{ const r=await api("/api/slot/save",{name});
+    logLine(`已存 ${label} → ${r.name}`, "p");
+    logLine("  " + r.deg.map(v=>v.toFixed(1)).join(", "));
+    await pollSlots();
+  }catch(e){ setErr(`存${label}失败：`+e.message); }
+}
+const P=()=>$("tPart").value;
+$("showPush").onchange = ()=>{ $("pushSlots").style.display = $("showPush").checked?"grid":"none"; };
+$("btnSaveGrasp").onclick = ()=>saveSlot(`grasp_${P()}_upright`, "抓取位(正)");
+$("btnSavePlace").onclick = ()=>saveSlot(`place_${P()}`, "装配位");
+$("btnSavePush1a").onclick = ()=>saveSlot(`push1_${P()}_a`, "推倒·起点");
+$("btnSavePush1b").onclick = ()=>saveSlot(`push1_${P()}_b`, "推倒·终点");
+$("btnSavePush2a").onclick = ()=>saveSlot(`push2_${P()}_a`, "推立·起点");
+$("btnSavePush2b").onclick = ()=>saveSlot(`push2_${P()}_b`, "推立·终点");
+
+async function runTask(dry){
+  const body={part:P(), form:$("tForm").value, angle:parseFloat($("tAngle").value)||0, dry_run:dry};
+  try{
+    setErr("");
+    const r=await api("/api/task/run", body);
+    if(dry){
+      const p=r.plan||{};
+      logLine(`预演 ${body.part}/${body.form}/${body.angle}°  序列=${(p.sequence||[]).join("→")}`,"p");
+      logLine("  抓取位(补偿后) "+(p.grasp_deg||[]).map(v=>v.toFixed(1)).join(", "));
+      logLine("  抓取悬停       "+(p.grasp_hover_deg||[]).map(v=>v.toFixed(1)).join(", "));
+      logLine("  抬起+归正朝向   "+(p.grasp_lift_normalized_deg||[]).map(v=>v.toFixed(1)).join(", "));
+      logLine("  装配位         "+(p.place_deg||[]).map(v=>v.toFixed(1)).join(", "));
+      logLine("  装配悬停       "+(p.place_hover_deg||[]).map(v=>v.toFixed(1)).join(", "));
+      logLine("  IK 残差(mm/°)  "+JSON.stringify(p.ik_resid));
+    }else{
+      jobLog=[]; $("log").innerHTML=""; setJobErr("");
+      logLine(`执行 ${body.part}/${body.form}/${body.angle}°`,"p");
+    }
+  }catch(e){ setErr("任务失败："+e.message); }
+}
+$("btnTaskDry").onclick = ()=>runTask(true);
+$("btnTaskRun").onclick = ()=>runTask(false);
+async function testPush(which){
+  try{ setErr(""); jobLog=[]; $("log").innerHTML="";
+    const r=await api("/api/push",{part:P(), which, dur:8.0});
+    logLine(`开始测试 ${which==="push1"?"推倒":"推立"}：${r.slots.join(" → ")}`,"p");
+  }catch(e){ setErr("测试失败："+e.message); }
+}
+$("btnPush1").onclick = ()=>testPush("push1");
+$("btnPush2").onclick = ()=>testPush("push2");
+
+// ---------- 交互：标准动作链 ----------
+$("btnRun").onclick = async()=>{
+  try{ setErr(""); jobLog=[]; lastTcpTrace=[]; $("log").innerHTML="";
+    const scale=parseFloat($("scale").value), stay=$("stay").checked;
+    const base=S.deg.slice(0,6).map(v=>v==null?0:v*D2R);
+    ghost=[[0,0,0], ...fkChain(base.map((v,i)=>v+(MAIN_DELTA[`J${i+1}`]||0)*scale*D2R)).pts];
+    await api("/api/run",{scale,stay});
+  }catch(e){ setErr("启动失败："+e.message); }
+};
+$("scale").oninput = ()=>renderPlan();
+$("stay").onchange = ()=>renderPlan();
+$("bVer").onclick = ()=>location.reload();
+
+// ---------- 交互：示教与录制 ----------
+$("btnTeach").onclick = async()=>{
+  const t = lastTeach || {};
+  // 主从跟随中：这个按钮只负责"开始/停止录制"，跟随本身不受影响
+  if(t.running && t.mode === "leader"){
+    const on = !t.recording;
+    try{
+      const r = await api("/api/teach/record", {on});
+      if(on) logLine("开始录制：从这一刻起攒样本，跟跟随走","p");
+      else logLine(r.file ? `录制已保存：${r.file}  ${r.duration}s / ${r.samples} 帧`
+                          : "本次没有录到内容","p");
+      pollTeach(); if(!on) pollRecordings();
+    }catch(e){ setErr("切换录制失败："+e.message); }
+    return;
+  }
+  if(teaching){
+    try{ const r=await api("/api/teach/stop",{});
+      logLine(`保存完成：${r.file}  ${r.duration}s / ${r.samples} 帧`,"p");
+      teaching=false; pollTeach(); pollRecordings();
+    }catch(e){ setErr("停止示教失败："+e.message); }
+    return;
+  }
+  try{ setErr(""); jobLog=[]; $("log").innerHTML="";
+    logLine("开始示教：7 个电机断电，可徒手搬","p");
+    await api("/api/teach/start",{mode:"free"});
+    logLine("到位点『夹爪夹紧』；结束再点同一个按钮停止并保存","p");
+    teaching=true; teachMode="free"; pollTeach();
+  }catch(e){ setErr("开始示教失败："+e.message); }
+};
+// ---------- 主臂（另一台 6 轴）与主从示教 ----------
+let leadOpen = false, leadRows = null, teachMode = null, lastTeach = {};
+
+function buildLeadTable(){
+  const tb = $("leadTbl").querySelector("tbody");
+  tb.innerHTML = "";
+  leadRows = tb;
+  for(let i=0;i<6;i++){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td class="mono">J${i+1}</td><td class="mono" id="lDeg${i}">—</td>`
+      + `<td><input type="checkbox" data-j="${i}" checked /></td>`
+      + `<td class="mono" id="lTgt${i}">—</td>`;
+    tb.appendChild(tr);
+  }
+  tb.querySelectorAll("input[type=checkbox]").forEach(cb=>{
+    cb.onchange = async()=>{
+      const j = +cb.dataset.j;
+      cb.dataset.touched = Date.now();          // 别让轮询把刚点的状态盖回去
+      const joints = [];
+      for(let k=0;k<6;k++) joints.push(k===j ? {sign: cb.checked?1:-1} : {});
+      try{
+        await api("/api/leader/map", {joints});
+        logLine(`J${j+1} 方向 → ${cb.checked?"+":"−"}（松手即生效，已按当前姿态重新锚定）`,"p");
+      }catch(e){ setErr("改映射失败："+e.message); }
+    };
+  });
+}
+
+async function pollLeader(){
+  try{
+    const r = await api("/api/leader");
+    if(!r.open){
+      leadOpen = false;
+      $("leadBadge").textContent = "未打开"; $("leadBadge").style.color = "#5d738b";
+      return;
+    }
+    leadOpen = true;
+    $("leadBadge").textContent = `已连 ${r.port} · ${r.hz} Hz`;
+    $("leadBadge").style.color = "#37d67a";
+    const deg = r.deg||[], tgt = r.target||[];
+    for(let i=0;i<6;i++){
+      $("lDeg"+i).textContent = (deg[i]==null) ? "—" : deg[i].toFixed(1);
+      $("lTgt"+i).textContent = (tgt[i]==null) ? "—" : tgt[i].toFixed(1);
+      const cb = leadRows.children[i].querySelector("input");
+      const sg = r.map?.joints?.[i]?.sign ?? 1;
+      // 刚点过 1.5s 内不回写，否则用户会看到勾选框"弹回去"
+      const touched = +(cb.dataset.touched || 0);
+      if(Date.now() - touched > 1500) cb.checked = sg > 0;
+    }
+  }catch(e){}
+}
+
+$("btnLeadOpen").onclick = async()=>{
+  try{
+    setErr("");
+    const port = ($("leadPort").value||"COM22").trim();
+    const r = await api("/api/leader/open", {port, baud:1000000});
+    leadOpen = true;
+    logLine(`主臂已连接 ${r.port}：${r.ids.length} 个舵机 (${r.ids.join(",")})`,"p");
+    pollLeader();
+  }catch(e){ setErr("打开主臂失败："+e.message); }
+};
+$("btnLeadClose").onclick = async()=>{
+  try{ await api("/api/leader/close", {}); }catch(e){}
+  leadOpen = false;
+  $("leadBadge").textContent = "未打开"; $("leadBadge").style.color = "#5d738b";
+};
+
+$("btnLeadTeach").onclick = async()=>{
+  if(teaching && teachMode === "leader"){
+    try{ const r=await api("/api/teach/stop",{});
+      logLine(r.file ? `主从跟随已停止，录制已保存：${r.file}  ${r.duration}s / ${r.samples} 帧`
+                     : "主从跟随已停止（本次没有录制内容）","p");
+      teaching=false; teachMode=null; pollTeach(); pollRecordings(); pollLeader();
+    }catch(e){ setErr("停止失败："+e.message); }
+    return;
+  }
+  if(teaching){ setErr("已有示教在进行，先停止"); return; }
+  try{
+    setErr(""); jobLog=[]; $("log").innerHTML="";
+    if(!leadOpen){
+      const port = ($("leadPort").value||"COM22").trim();
+      const r = await api("/api/leader/open", {port, baud:1000000});
+      leadOpen = true;
+      logLine(`主臂已连接 ${r.port}：${r.ids.join(",")}`,"p");
+    }
+    await api("/api/teach/start", {mode:"leader", keep_enabled: $("leadKeep").checked});
+    teaching = true; teachMode = "leader";
+    logLine("主从跟随已开始（不录制）：拖主臂，从臂按增量跟随；要录就点『开始录制』","p");
+    pollTeach(); pollLeader();
+  }catch(e){ setErr("开始主从跟随失败："+e.message); }
+};
+
+buildLeadTable();
+setInterval(pollLeader, 250);
+
+$("btnGripClose").onclick = async()=>{ try{ const r=await api("/api/grip",{action:"close"});
+  logLine("夹爪：持续夹到夹不动并保持（录制继续）","p"); }catch(e){setErr("夹爪动作失败："+e.message);} };
+$("btnGripOpen").onclick = async()=>{ try{ const r=await api("/api/grip",{action:"open"});
+  logLine("夹爪：张开（录制继续）","p"); }catch(e){setErr("夹爪动作失败："+e.message);} };
+async function doInterrupt(){
+  try{
+    setErr("");
+    const r = await api("/api/interrupt", {});
+    logLine("⏸ 已中断，保持使能并锁在原地", "p");
+    if(r.held_deg) logLine("  锁定位姿: " + r.held_deg.map(v=>v.toFixed(1)).join(", "));
+  }catch(e){ setErr("中断失败：" + e.message); }
+}
+$("btnInterrupt").onclick = doInterrupt;
+$("btnInterrupt2").onclick = doInterrupt;
+
+$("btnPlay").onclick = async()=>{
+  const name=$("recSel").value; if(!name){ setErr("先选一条录制"); return; }
+  try{ setErr(""); jobLog=[]; $("log").innerHTML=""; logLine("回放："+name,"p");
+    await api("/api/play",{name, speed:1.0}); }catch(e){ setErr("回放失败："+e.message); }
+};
+$("btnRecRename").onclick = async()=>{
+  const name=$("recSel").value; if(!name){ setErr("先选一条录制"); return; }
+  const nn=prompt("新文件名（不用写 .json）", name.replace(/\.json$/i,"")); if(!nn) return;
+  try{ const r=await api("/api/rec/rename",{name,new:nn}); logLine(`已重命名 ${r.from} → ${r.to}`,"p"); await pollRecordings(); }
+  catch(e){ setErr("重命名失败："+e.message); }
+};
+$("btnRecNote").onclick = async()=>{
+  const name=$("recSel").value; if(!name){ setErr("先选一条录制"); return; }
+  const note=prompt("备注（写入 json 的 note 字段）",""); if(note===null) return;
+  try{ await api("/api/rec/note",{name,note}); logLine(`备注已保存：${name}【${note}】`,"p"); await pollRecordings(); }
+  catch(e){ setErr("备注失败："+e.message); }
+};
+$("btnRecDel").onclick = async()=>{
+  const name=$("recSel").value; if(!name){ setErr("先选一条录制"); return; }
+  if(!confirm(`确定删除 ${name}？不可恢复。`)) return;
+  try{ const r=await api("/api/rec/delete",{name}); logLine("已删除 "+r.deleted,"e"); await pollRecordings(); }
+  catch(e){ setErr("删除失败："+e.message); }
+};
+
+// 周期检查页面版本：前端一改，旧标签页会自动刷新（不用手动 Ctrl+F5）
+async function checkVersion(){
+  try{
+    const info = await api("/api/info");
+    if(/^[0-9a-f]{10}$/.test(PAGE_VER) && info.page_ver && info.page_ver !== PAGE_VER){
+      if(!window.__verReload){ window.__verReload = true; location.reload(); }
+    }
+  }catch(e){}
+}
+
+// ---------- 启动 ----------
+(async function init(){
+  await refreshInfo();
+  await pollState();
+  await pollJob();
+  await pollTeach();
+  await pollRecordings();
+  await pollSlots();
+  setInterval(()=>{ if(!running && !teaching) pollState(); }, 400);
+  setInterval(pollJob, 250);
+  setInterval(pollTeach, 400);
+  setInterval(pollRecordings, 3000);
+  setInterval(pollSlots, 3000);
+  setInterval(checkVersion, 4000);
+  setInterval(()=>{ if(!running) draw(); }, 400);
+})();
+</script>
+</body>
+</html>

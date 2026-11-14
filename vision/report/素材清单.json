@@ -1,0 +1,187 @@
+{
+  "collected_at": "2026-11-14T14:09:11.567Z",
+  "assets": [
+    {
+      "source": "rotation_pose/results/test/error_cdf.png",
+      "file": "images/01_rgb_error_cdf.png",
+      "caption": "同源合成测试的角度误差分布；不是实物精度"
+    },
+    {
+      "source": "rotation_pose/results/test/accepted.jpg",
+      "file": "images/02_rgb_accepted.jpg",
+      "caption": "合成图接受案例"
+    },
+    {
+      "source": "rotation_pose/results/test/rejected.jpg",
+      "file": "images/03_rgb_rejected.jpg",
+      "caption": "合成图拒识案例"
+    },
+    {
+      "source": "rotation_pose/video_results/all_visible/contact_sheet.jpg",
+      "file": "images/04_real_video_directions.jpg",
+      "caption": "真实视频逐帧二维方向与拒识"
+    },
+    {
+      "source": "rotation_pose/video_results/all_visible/angles.png",
+      "file": "images/05_real_video_angles.png",
+      "caption": "图像模90度角及可测数量"
+    },
+    {
+      "source": "rotation_pose/video_results/tracking_loss.jpg",
+      "file": "images/06_tracking_loss.jpg",
+      "caption": "出画后目标身份恢复失败分析"
+    },
+    {
+      "source": "runs/segment/metal_part_yolov8s_seg_refine/results.png",
+      "file": "images/07_seg_training_curves.png",
+      "caption": "分割微调曲线；验证集为自动标签"
+    },
+    {
+      "source": "runs/segment/metal_part_yolov8s_seg_refine/val_batch0_labels.jpg",
+      "file": "images/08_seg_pseudo_labels.jpg",
+      "caption": "验证批次自动伪标签，不是人工真值"
+    },
+    {
+      "source": "runs/segment/metal_part_yolov8s_seg_refine/val_batch0_pred.jpg",
+      "file": "images/09_seg_predictions.jpg",
+      "caption": "对应验证批次预测"
+    },
+    {
+      "source": "metal_video_annotations/yolo_masks_final/video_03_000056/overlay.jpg",
+      "file": "images/10_seg_failure_example.jpg",
+      "caption": "重复检测与漏检案例"
+    },
+    {
+      "source": "metal_video_annotations/angle_demo/known_rotations.jpg",
+      "file": "images/11_mask_known_rotations.jpg",
+      "caption": "掩膜二维旋转等变检查，不是实物转角精度"
+    },
+    {
+      "source": "ct_pose_capture/rgb.png",
+      "file": "images/12_realsense_rgb.png",
+      "caption": "D435i 实物彩色输入"
+    },
+    {
+      "source": "ct_pose_capture/pose/initial_mask.png",
+      "file": "images/13_initial_instance_mask.png",
+      "caption": "FoundationPose 输入单实例掩膜"
+    },
+    {
+      "source": "ct_pose_capture/pose/cad_contour_overlay.png",
+      "file": "images/14_cad_contour_overlay.png",
+      "caption": "CAD 投影外轮廓与实物同帧比较"
+    },
+    {
+      "source": "ct_pose_capture/pose/pose_overlay.png",
+      "file": "images/15_pose_axes_overlay.png",
+      "caption": "实物初始化三维框和坐标轴"
+    },
+    {
+      "source": "ct_pose_capture/tracking_01/tracking_contact_sheet.jpg",
+      "file": "images/16_rgbd_tracking_sequence.jpg",
+      "caption": "150帧实物跟踪中的四个时刻"
+    },
+    {
+      "source": "image/混合/Photo from 2026-11-14 21-00-01.599316.jpeg",
+      "file": "images/17_mixed_class_reference.jpeg",
+      "caption": "从左至右为新 CT、DT、TT；旧 CT 类别不同"
+    },
+    {
+      "source": "mixed_video_annotations/video_02_quality_preview.jpg",
+      "file": "images/18_mixed_annotation_preview.jpg",
+      "caption": "混合数据提示及标注质量预览，未经人工验收"
+    },
+    {
+      "source": "mixed_video_annotations/video_03_coordinate_review.jpg",
+      "file": "images/19_mixed_prompt_review.jpg",
+      "caption": "混合视频提示坐标复核"
+    },
+    {
+      "source": "rotation_pose/video_results/all_visible/annotated.mp4",
+      "file": "videos/01_real_video_directions.mp4",
+      "caption": "真实视频二维方向演示，非6D跟踪"
+    }
+  ],
+  "evidence": [
+    {
+      "source": "rotation_pose/results/test/metrics.json",
+      "file": "evidence/rotation_pose/results/test/metrics.json"
+    },
+    {
+      "source": "rotation_pose/results/real_transfer.json",
+      "file": "evidence/rotation_pose/results/real_transfer.json"
+    },
+    {
+      "source": "rotation_pose/video_results/all_visible/summary.json",
+      "file": "evidence/rotation_pose/video_results/all_visible/summary.json"
+    },
+    {
+      "source": "metal_video_annotations/summary.json",
+      "file": "evidence/metal_video_annotations/summary.json"
+    },
+    {
+      "source": "metal_video_annotations/yolo_model_selection.json",
+      "file": "evidence/metal_video_annotations/yolo_model_selection.json"
+    },
+    {
+      "source": "models/CT_mesh/conversion.json",
+      "file": "evidence/models/CT_mesh/conversion.json"
+    },
+    {
+      "source": "ct_pose_capture/camera.json",
+      "file": "evidence/ct_pose_capture/camera.json"
+    },
+    {
+      "source": "ct_pose_capture/cam_K.txt",
+      "file": "evidence/ct_pose_capture/cam_K.txt"
+    },
+    {
+      "source": "ct_pose_capture/depth_quality.json",
+      "file": "evidence/ct_pose_capture/depth_quality.json"
+    },
+    {
+      "source": "ct_pose_capture/pose/geometric_checks.json",
+      "file": "evidence/ct_pose_capture/pose/geometric_checks.json"
+    },
+    {
+      "source": "ct_pose_capture/pose/initialization.json",
+      "file": "evidence/ct_pose_capture/pose/initialization.json"
+    },
+    {
+      "source": "ct_pose_capture/pose/pose.txt",
+      "file": "evidence/ct_pose_capture/pose/pose.txt"
+    },
+    {
+      "source": "ct_pose_capture/tracking_01/summary.json",
+      "file": "evidence/ct_pose_capture/tracking_01/summary.json"
+    },
+    {
+      "source": "ct_pose_capture/manual_only_verify/summary.json",
+      "file": "evidence/ct_pose_capture/manual_only_verify/summary.json"
+    },
+    {
+      "source": "ct_pose_capture/manual_only_verify/manual_001/result.json",
+      "file": "evidence/ct_pose_capture/manual_only_verify/manual_001/result.json"
+    },
+    {
+      "source": "mixed_video_annotations/split_integrity.json",
+      "file": "evidence/mixed_video_annotations/split_integrity.json"
+    },
+    {
+      "source": "mixed_video_annotations/class_provenance.json",
+      "file": "evidence/mixed_video_annotations/class_provenance.json"
+    },
+    {
+      "source": "mixed_video_annotations/xany_runtime.json",
+      "file": "evidence/mixed_video_annotations/xany_runtime.json"
+    },
+    {
+      "source": "mixed_video_annotations/xany_annotation.log",
+      "file": "evidence/mixed_video_annotations/xany_annotation.log"
+    },
+    {
+      "source": "runs/segment/metal_part_yolov8s_seg_refine/results.csv",
+      "file": "evidence/runs/segment/metal_part_yolov8s_seg_refine/results.csv"
+    }
+  ]
+}

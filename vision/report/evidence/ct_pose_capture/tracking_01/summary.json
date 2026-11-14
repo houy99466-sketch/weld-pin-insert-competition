@@ -1,0 +1,24 @@
+{
+  "frames": 150,
+  "elapsed_s": 12.624085054001625,
+  "initialization_capture": "/home/jerry/robot/ct_pose_capture",
+  "tracking_median_s": 0.027747278500100947,
+  "accuracy_verified": false,
+  "delivered_frame_rate_hz": 14.50308601452319,
+  "tracking_p95_ms": 33.251193198702815,
+  "last_50_center_std_mm": [
+    0.7338521143995275,
+    0.7209140322173694,
+    1.103945294708016
+  ],
+  "last_50_center_range_mm": [
+    5.315703339365485,
+    3.7907627156653496,
+    5.337078715189348
+  ],
+  "first_to_last_center_change_mm": [
+    -0.3396785726909046,
+    1.196263583913719,
+    -3.588065923568029
+  ]
+}

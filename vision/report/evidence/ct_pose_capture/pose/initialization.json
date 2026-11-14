@@ -1,0 +1,35 @@
+{
+  "mask_manifest": "/home/jerry/robot/ct_pose_capture/yolo_masks/metadata.json",
+  "instance_id": 0,
+  "depth": "/home/jerry/robot/ct_pose_capture/depth.png",
+  "depth_scale": 0.0010000000474974513,
+  "mesh": "/home/jerry/robot/models/CT_mesh/CT.obj",
+  "mesh_scale": 1.0,
+  "pose_object_to_camera": [
+    [
+      -0.987249493598938,
+      -0.15656477212905884,
+      -0.028739595785737038,
+      -0.38485187292099
+    ],
+    [
+      0.04058157652616501,
+      -0.4221345782279968,
+      0.9056243896484375,
+      -0.02481703646481037
+    ],
+    [
+      -0.15392087399959564,
+      0.892910897731781,
+      0.42310577630996704,
+      0.09891301393508911
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "translation_unit": "meters"
+}

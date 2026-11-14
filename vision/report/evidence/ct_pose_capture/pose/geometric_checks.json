@@ -1,0 +1,17 @@
+{
+  "mesh_bbox_center_camera_m": [
+    -0.012963266001551899,
+    0.024879503698370706,
+    0.18739970157767594
+  ],
+  "rotation_determinant": 1.0000000305760632,
+  "orthogonality_error": 6.950599193401399e-08,
+  "model_depth_range_m": [
+    0.1656686106727329,
+    0.21072445358959854
+  ],
+  "observed_mask_median_depth_m": 0.17600000835955143,
+  "projected_convex_hull_mask_iou": 0.8825801378417133,
+  "physical_accuracy_verified": false,
+  "projected_triangle_silhouette_mask_iou": 0.9183938759298043
+}

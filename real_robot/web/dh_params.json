@@ -1,0 +1,71 @@
+{
+ "convention": "standard DH: A_i = Rz(θ+off)·Tz(d)·Tx(a)·Rx(α)",
+ "units": {
+  "d": "mm",
+  "a": "mm",
+  "angle": "deg"
+ },
+ "dh": [
+  {
+   "i": 1,
+   "theta_off_deg": -1.4e-05,
+   "d_mm": 140.2195,
+   "a_mm": 20.011,
+   "alpha_deg": 89.999864
+  },
+  {
+   "i": 2,
+   "theta_off_deg": -179.969483,
+   "d_mm": -33236.8177,
+   "a_mm": 264.0001,
+   "alpha_deg": -179.999826
+  },
+  {
+   "i": 3,
+   "theta_off_deg": -12.529395,
+   "d_mm": -18763.0898,
+   "a_mm": -248.5426,
+   "alpha_deg": -0.000133
+  },
+  {
+   "i": 4,
+   "theta_off_deg": -167.440073,
+   "d_mm": -14473.7495,
+   "a_mm": 78.3135,
+   "alpha_deg": -90.000246
+  },
+  {
+   "i": 5,
+   "theta_off_deg": -90.000011,
+   "d_mm": 2.5275,
+   "a_mm": -0.0106,
+   "alpha_deg": -90.000227
+  },
+  {
+   "i": 6,
+   "theta_off_deg": 90.000008,
+   "d_mm": 28.007,
+   "a_mm": 0.0356,
+   "alpha_deg": -1.1e-05
+  }
+ ],
+ "tool_flange": {
+  "xyz_mm": [
+   0,
+   0,
+   155.39
+  ],
+  "rpy_deg": [
+   0.0,
+   -90.0002,
+   179.9947
+  ]
+ },
+ "fit_rms": 8.932154567143852e-06,
+ "verify": {
+  "samples": 200,
+  "max_pos_err_mm": 0.16772854474234045,
+  "max_rot_err": 4.260325088545347e-06
+ },
+ "source": "urdf/DM/urdf/ReBot_Arm_DM.urdf (Seeed-Projects/reBotArm_control_py)"
+}

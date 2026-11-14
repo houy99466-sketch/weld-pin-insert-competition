@@ -1,0 +1,75 @@
+{
+  "note": "leader(主臂 STS3215) -> slave(reBot DM) 关节映射；默认走相对增量映射",
+  "use_abs": false,
+  "max_travel_deg": 130.0,
+  "vlim_scale": 0.55,
+  "j7_hold": false,
+  "leader": {
+    "port": "COM22",
+    "baud": 1000000,
+    "ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
+  },
+  "joints": [
+    {
+      "src": 1,
+      "sign": -1,
+      "gain": 1.0,
+      "lmin": 60.3,
+      "lmax": 296.3,
+      "smin": -160.0,
+      "smax": 160.0
+    },
+    {
+      "src": 2,
+      "sign": -1,
+      "gain": 1.0,
+      "lmin": 71.1,
+      "lmax": 279.9,
+      "smin": -180.0,
+      "smax": 0.0
+    },
+    {
+      "src": 3,
+      "sign": 1,
+      "gain": 1.0,
+      "lmin": 84.5,
+      "lmax": 280.7,
+      "smin": -180.0,
+      "smax": 0.0
+    },
+    {
+      "src": 4,
+      "sign": 1,
+      "gain": 1.0,
+      "lmin": 79.9,
+      "lmax": 284.6,
+      "smin": -107.0,
+      "smax": 109.0
+    },
+    {
+      "src": 5,
+      "sign": 1,
+      "gain": 1.0,
+      "lmin": 10.4,
+      "lmax": 348.3,
+      "smin": -90.0,
+      "smax": 90.0
+    },
+    {
+      "src": 6,
+      "sign": 1,
+      "gain": 1.0,
+      "lmin": 179.9,
+      "lmax": 312.1,
+      "smin": -180.0,
+      "smax": 180.0
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "reference_image": "/home/jerry/robot/image/混合/Photo from 2026-11-14 21-00-01.599316.jpeg",
+  "reference_sha256": "0575f9b513d764bcf86aa48384ea497252e0085594468f8a3d9722980d4c4f8f",
+  "left_to_right": [
+    "CT",
+    "DT",
+    "TT"
+  ],
+  "classes": {
+    "CT": "带法兰圆筒件",
+    "DT": "方形孔件",
+    "TT": "银色折弯支架"
+  },
+  "previous_single_class_CT_is_not_this_dataset_CT": true,
+  "annotation_method": "Prompted SAM2 video masks; automatic pseudo-labels",
+  "source_videos": [
+    {
+      "id": "video_01",
+      "source": "/home/jerry/robot/image/混合/1.mp4",
+      "frames": 415,
+      "fps": 29.992772825825103,
+      "split": "train",
+      "objects": {
+        "1": "DT",
+        "2": "DT"
+      }
+    },
+    {
+      "id": "video_02",
+      "source": "/home/jerry/robot/image/混合/2.mp4",
+      "frames": 1759,
+      "fps": 29.977504090165425,
+      "split": "train",
+      "objects": {
+        "1": "CT",
+        "2": "DT",
+        "3": "DT",
+        "4": "TT",
+        "5": "TT",
+        "6": "TT"
+      }
+    },
+    {
+      "id": "video_03",
+      "source": "/home/jerry/robot/image/混合/3.mp4",
+      "frames": 1035,
+      "fps": 29.977408329954237,
+      "split": "val",
+      "objects": {
+        "1": "CT",
+        "2": "DT",
+        "3": "DT",
+        "4": "TT",
+        "5": "TT",
+        "6": "TT"
+      }
+    }
+  ]
+}

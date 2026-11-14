@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>摄像头 · 录制</title>
+<style>
+  :root{
+    --bg:#0b0e12; --panel:#131821; --line:#22303f; --txt:#dfe7f1; --dim:#7d8ea3;
+    --accent:#37d67a; --danger:#ff4d4f; --warn:#ffb020;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#16202c,#0b0e12 55%);
+       color:var(--txt);font:14px/1.55 "Segoe UI",system-ui,"Microsoft YaHei",sans-serif}
+  header{display:flex;align-items:center;gap:14px;padding:12px 22px;border-bottom:1px solid var(--line);
+         background:linear-gradient(180deg,#141b26,#0d1219);position:sticky;top:0;z-index:5}
+  header h1{font-size:16px;margin:0;font-weight:600}
+  header a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+           padding:5px 11px;border-radius:8px}
+  header a:hover{color:var(--txt);border-color:#31465c}
+  .badge{margin-left:auto;font-family:var(--mono);font-size:12px;padding:3px 10px;border-radius:999px;
+         border:1px solid var(--line);color:var(--dim);background:#0d131b}
+  .badge.on{color:#0b1a12;background:var(--accent);border-color:var(--accent);font-weight:700}
+  .badge.rec{color:#fff;background:var(--danger);border-color:var(--danger);font-weight:700}
+  main{display:grid;grid-template-columns:1fr 320px;gap:16px;padding:16px 22px 26px}
+  @media (max-width:1100px){main{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  #view{width:100%;background:#06090d;border-radius:10px;display:block;min-height:360px;object-fit:contain}
+  .stage{position:relative}
+  .recdot{position:absolute;top:14px;left:14px;display:none;align-items:center;gap:8px;
+          background:rgba(20,0,0,.65);border:1px solid #6b1a1c;color:#ff9a9c;
+          padding:5px 12px;border-radius:999px;font-family:var(--mono);font-size:12px}
+  .recdot i{width:9px;height:9px;border-radius:50%;background:var(--danger);animation:blink 1s infinite}
+  @keyframes blink{50%{opacity:.15}}
+  button.big{width:100%;padding:18px;border:none;border-radius:12px;cursor:pointer;font-size:17px;
+             font-weight:800;transition:.15s;background:linear-gradient(180deg,#2bdc84,#18a862);color:#04160d}
+  button.big.rec{background:linear-gradient(180deg,#ff6b6b,#c62828);color:#fff}
+  button.big:disabled{filter:grayscale(.8);opacity:.5;cursor:not-allowed}
+  .row{display:flex;gap:8px;margin-top:10px}
+  button.b{flex:1;background:#1a2330;border:1px solid var(--line);color:var(--txt);
+           padding:9px;border-radius:9px;cursor:pointer;font-size:13px}
+  button.b:hover{border-color:#31465c;background:#1e2938}
+  select{width:100%;background:#0d131b;color:var(--txt);border:1px solid var(--line);
+         border-radius:9px;padding:9px;font-family:var(--mono);font-size:12.5px}
+  .kv{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;
+      padding:3px 0;color:var(--dim)}
+  .kv b{color:var(--txt);font-weight:500}
+  h2{margin:0 0 10px;font-size:12.5px;color:var(--dim);letter-spacing:.6px;text-transform:uppercase}
+  .hint{font-size:11.5px;color:var(--dim);margin-top:10px;line-height:1.6}
+  .list{max-height:220px;overflow:auto;font-family:var(--mono);font-size:12px;margin-top:8px}
+  .list div{padding:4px 6px;border-bottom:1px solid #182230;color:#9fb2c8;cursor:default}
+  .err{display:none;margin:10px 22px 0;padding:10px 14px;border-radius:10px;background:#2b1214;
+       border:1px solid #5a1f22;color:#ffb4b6;font-size:13px;white-space:pre-wrap}
+  .err.show{display:block}
+</style>
+</head>
+<body>
+<header>
+  <h1>摄像头 · 录制</h1>
+  <a href="/">← 回到机械臂调试台</a>
+  <div class="badge" id="bCam">摄像头 未连接</div>
+</header>
+<div class="err" id="err"></div>
+
+<main>
+  <div class="col">
+    <div class="card">
+      <div class="stage">
+        <img id="view" alt="摄像头画面" src="" />
+        <div class="recdot" id="recdot"><i></i><span id="recTime">00:00</span></div>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <button class="big" id="btnRec">● 开始录制</button>
+      </div>
+      <div class="hint">
+        一个按钮切换：点一次开始录，再点一次结束并保存 mp4。
+        视频保存在 <code>real_robot/web/cam_videos/</code>。
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <h2>摄像头</h2>
+      <select id="devSel"><option value="">（加载中…）</option></select>
+      <div class="row">
+        <button class="b" id="btnOpen">打开</button>
+        <button class="b" id="btnClose">关闭</button>
+      </div>
+      <div style="margin-top:10px">
+        <div class="kv"><span>设备</span><b id="iDev">—</b></div>
+        <div class="kv"><span>分辨率</span><b id="iSize">—</b></div>
+        <div class="kv"><span>帧率</span><b id="iFps">—</b></div>
+        <div class="kv"><span>已出帧</span><b id="iFrames">—</b></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h2>录制状态</h2>
+      <div class="kv"><span>状态</span><b id="iRecState">空闲</b></div>
+      <div class="kv"><span>时长</span><b id="iRecDur">—</b></div>
+      <div class="kv"><span>帧数</span><b id="iRecFrames">—</b></div>
+      <div class="kv"><span>文件</span><b id="iRecFile" style="word-break:break-all;text-align:right">—</b></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h2>已录视频</h2>
+      <div class="list" id="vidList">—</div>
+    </div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+function setErr(m){ const e=$("err"); if(!m){e.className="err";e.textContent="";return;} e.className="err show"; e.textContent=m; }
+async function api(path, body){
+  const opt = body===undefined?{}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)};
+  const r = await fetch(path, opt);
+  const j = await r.json().catch(()=>({ok:false,error:"响应不是 JSON"}));
+  if(!j.ok) throw new Error(j.error||("HTTP "+r.status));
+  return j;
+}
+let opened=false, recording=false, recT0=0;
+
+async function loadDevices(){
+  try{
+    const r = await api("/api/cam/devices");
+    const sel=$("devSel"); const cur=sel.value; sel.innerHTML="";
+    (r.devices||[]).forEach(d=>{
+      const o=document.createElement("option"); o.value=d; o.textContent=d;
+      if(d===cur || (!cur && /icspring/i.test(d))) o.selected=true;
+      sel.appendChild(o);
+    });
+    if(!r.devices || !r.devices.length) sel.innerHTML=`<option value="">（没找到摄像头）</option>`;
+  }catch(e){ setErr("枚举设备失败："+e.message); }
+}
+async function info(){
+  try{
+    const r = await api("/api/cam/info");
+    opened = r.opened; recording = r.recording;
+    $("bCam").textContent = opened ? `摄像头 ${r.width}×${r.height}` : "摄像头 未连接";
+    $("bCam").className = "badge" + (opened ? " on" : "");
+    $("iDev").textContent = r.device || "—";
+    $("iSize").textContent = r.width ? `${r.width} × ${r.height}` : "—";
+    $("iFps").textContent = r.fps ? r.fps + " fps" : "—";
+    $("iFrames").textContent = r.frames ?? "—";
+    $("iRecState").textContent = recording ? "录制中" : "空闲";
+    $("iRecDur").textContent = recording ? r.rec_seconds + " s" : "—";
+    $("iRecFrames").textContent = recording ? r.rec_frames : "—";
+    $("iRecFile").textContent = r.rec_file || "—";
+    const btn=$("btnRec");
+    btn.textContent = recording ? "■ 结束录制并保存" : "● 开始录制";
+    btn.className = "big" + (recording ? " rec" : "");
+    $("recdot").style.display = recording ? "flex" : "none";
+    if(recording){ const s=Math.floor(r.rec_seconds||0);
+      $("recTime").textContent = String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }
+    const vl=$("vidList");
+    const vs=r.videos||[];
+    vl.innerHTML = vs.length ? vs.map(v=>`<div>${v}</div>`).join("") : "（还没有录制）";
+    if(r.error) setErr(r.error);
+  }catch(e){}
+}
+async function openCam(){
+  const dev=$("devSel").value; if(!dev){ setErr("先选一个摄像头"); return; }
+  setErr("");
+  try{
+    $("btnOpen").disabled=true; $("btnOpen").textContent="打开中…";
+    await api("/api/cam/open", {device:dev, size:"1280x720"});
+    $("view").src = "/cam/stream?t=" + Date.now();
+    await info();
+  }catch(e){ setErr("打开摄像头失败："+e.message); }
+  finally{ $("btnOpen").disabled=false; $("btnOpen").textContent="打开"; }
+}
+async function closeCam(){
+  try{ await api("/api/cam/close", {}); $("view").src=""; await info(); }
+  catch(e){ setErr("关闭失败："+e.message); }
+}
+$("btnOpen").onclick = openCam;
+$("btnClose").onclick = closeCam;
+$("btnRec").onclick = async ()=>{
+  try{
+    setErr("");
+    if(recording){ const r=await api("/api/cam/rec",{action:"stop"});
+      alert(`已保存 ${r.file}\n时长 ${r.duration}s / ${r.frames} 帧 / ${r.size_mb} MB`); }
+    else { await api("/api/cam/rec",{action:"start"}); }
+    await info();
+  }catch(e){ setErr("录制操作失败："+e.message); }
+};
+
+(async function init(){
+  await loadDevices();
+  await info();
+  setInterval(info, 700);
+  // 若后端已经开着摄像头，自动接上画面
+  fetch("/api/cam/info").then(r=>r.json()).then(j=>{
+    if(j.ok && j.opened) $("view").src = "/cam/stream?t=" + Date.now();
+  }).catch(()=>{});
+})();
+</script>
+</body>
+</html>
